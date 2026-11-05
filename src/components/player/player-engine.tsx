@@ -334,6 +334,51 @@ export function PlayerEngine() {
     }),
     [],
   );
+  /*──────────────────────────────────────────────────────────────
+   * TUA BÀI (seek): khi người dùng kéo thanh thời gian / bấm phím tắt,
+   * store chỉ cập nhật giao diện (progress, pendingSeek). Lúc này ta
+   * phải lệnh động cơ thực sự tua đến vị trí mới, tương tự SoundCloud.
+   * Dùng `seekRequest.token` làm khóa để chỉ tua một lần cho mỗi yêu cầu.
+   *──────────────────────────────────────────────────────────────*/
+  const seekTokenRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!seekRequest || seekRequest.token === seekTokenRef.current) return;
+    seekTokenRef.current = seekRequest.token;
+
+    const state = usePlayerStore.getState();
+    const song = state.current;
+    if (!song) return;
+
+    const engine = enginesRef.current[song.sourceType];
+    if (!engine) return;
+
+    engine.seek(seekRequest.seconds);
+  }, [seekRequest]);
+
+  /*──────────────────────────────────────────────────────────────
+   * Chuyển bài khác: reset con vị trí đỉnh (peak) của bài cũ để không bị
+   * tua nhầm về bài cũ khi bài mới vừa bắt đầu phát (iframe / thẻ audio
+   * co the bao currentTime sai trong vai giay dau). Xoa cung lenh tua cu
+   * con dang de thanh thoi gian bai moi khong bi nhay ve vi tri cu.
+   *──────────────────────────────────────────────────────────────*/
+  const prevSongIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    const id = current?.id ?? null;
+    if (id && id !== prevSongIdRef.current) {
+      prevSongIdRef.current = id;
+      peakRef.current = 0;
+      const state = usePlayerStore.getState();
+      if (state.pendingSeek !== null || state.seekRequest !== null) {
+        usePlayerStore.setState({
+          pendingSeek: null,
+          pendingSeekAt: 0,
+          seekRequest: null,
+        });
+      }
+    }
+  }, [current?.id]);
+
 
   const ensureEngineForSource = (sourceType: SongDTO["sourceType"]): PlayerEngine | null => {
     const existing = enginesRef.current[sourceType];

@@ -330,6 +330,13 @@ export class AudioEngine implements PlayerEngine {
       : 0;
 
     this.audio.currentTime = clampSeekTarget(seconds, duration);
+
+    // Bao ngay vi tri moi de giao dien khong bi treo khi the <audio> dang pause
+    // (su kien `seeked` chi ban khi dang phat / khong pause).
+    this.callbacks.onTimeUpdate?.(
+      this.audio.currentTime,
+      Number.isFinite(this.audio.duration) ? this.audio.duration : 0,
+    );
   }
 
   /**
