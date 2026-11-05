@@ -40,7 +40,7 @@ export async function registerPlay(input: RegisterPlayInput): Promise<void> {
 
   const recent = await prisma.listenHistory.findFirst({
     where: { userId, songId, playedAt: { gte: since } },
-    orderBy: { playedAt: "desc" },
+    orderBy: [{ playedAt: "desc" }, { id: "desc" }],
     select: { id: true, msPlayed: true, completed: true },
   });
 
@@ -82,7 +82,7 @@ export async function listUserHistory(
 ): Promise<HistoryEntryDTO[]> {
   const rows = await prisma.listenHistory.findMany({
     where: { userId },
-    orderBy: { playedAt: "desc" },
+    orderBy: [{ playedAt: "desc" }, { id: "desc" }],
     take: limit,
     include: { song: { include: songInclude } },
   });
@@ -134,7 +134,7 @@ export function pickUniqueRecentSongs<T extends { songId: string }>(rows: T[], l
 export async function listRecentlyPlayedSongs(userId: string, limit = 10) {
   const rows = await prisma.listenHistory.findMany({
     where: { userId },
-    orderBy: { playedAt: "desc" },
+    orderBy: [{ playedAt: "desc" }, { id: "desc" }],
     // Quet rong hon so luong can hien thi de van du bai khac nhau du mot bai duoc nghe lai nhieu lan
     take: Math.min(Math.max(limit * 8, 60), RECENT_HISTORY_SCAN_LIMIT),
     include: { song: { include: songInclude } },
@@ -182,7 +182,7 @@ export async function deleteHistoryEntries(userId: string, ids: string[]): Promi
 /** Lich su nghe nhac toan he thong (danh cho quan tri vien) */
 export async function listAllHistory(limit = 200) {
   const rows = await prisma.listenHistory.findMany({
-    orderBy: { playedAt: "desc" },
+    orderBy: [{ playedAt: "desc" }, { id: "desc" }],
     take: limit,
     include: {
       user: { select: { id: true, name: true, email: true } },
@@ -309,12 +309,12 @@ export async function getListeningInsights(
     }),
     prisma.listenHistory.findFirst({
       where: { userId },
-      orderBy: { playedAt: "asc" },
+      orderBy: [{ playedAt: "asc" }, { id: "asc" }],
       select: { playedAt: true },
     }),
     prisma.listenHistory.findMany({
       where: { userId, playedAt: { gte: windowStart } },
-      orderBy: { playedAt: "desc" },
+      orderBy: [{ playedAt: "desc" }, { id: "desc" }],
       take: INSIGHTS_ROW_LIMIT,
       include: { song: { include: songInclude } },
     }),
@@ -336,7 +336,12 @@ export async function getListeningInsights(
   }
 
   const rankedSongs = [...perSong.values()].sort(
-    (a, b) => b.plays - a.plays || b.msPlayed - a.msPlayed || a.row.song.title.localeCompare(b.row.song.title, "vi"),
+    (a, b) =>
+      b.plays - a.plays ||
+      b.msPlayed - a.msPlayed ||
+      a.row.song.title.localeCompare(b.row.song.title, "vi") ||
+      // Khoa phu: `songId` la duy nhat nen thu tu xep hang luon ON DINH
+      a.row.songId.localeCompare(b.row.songId),
   );
 
   const favoriteIds = await getFavoriteIds(

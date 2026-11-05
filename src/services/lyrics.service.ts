@@ -310,11 +310,22 @@ export function pickBestLyricsCandidate(
 
   const accepted = scored
     .filter((candidate) => candidate.decision.accepted)
-    .sort((a, b) => b.decision.total - a.decision.total);
+    // Khoa phu `track`/`artist` de hai ung vien cung diem van duoc xep theo thu tu ON DINH
+    .sort(
+      (a, b) =>
+        b.decision.total - a.decision.total ||
+        (a.match.track ?? "").localeCompare(b.match.track ?? "") ||
+        (a.match.artist ?? "").localeCompare(b.match.artist ?? ""),
+    );
 
   if (accepted.length > 0) return { best: accepted[0], rejected: null };
 
-  const closest = [...scored].sort((a, b) => b.decision.total - a.decision.total)[0] ?? null;
+  const closest = [...scored].sort(
+    (a, b) =>
+      b.decision.total - a.decision.total ||
+      (a.match.track ?? "").localeCompare(b.match.track ?? "") ||
+      (a.match.artist ?? "").localeCompare(b.match.artist ?? ""),
+  )[0] ?? null;
   return { best: null, rejected: closest?.match ?? null };
 }
 
@@ -650,7 +661,7 @@ function missingLyricsWhere() {
 export async function listSongIdsMissingLyrics(limit = 20): Promise<string[]> {
   const songs = await prisma.song.findMany({
     where: missingLyricsWhere(),
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: MISSING_LYRICS_SCAN_LIMIT,
     select: { id: true, title: true, durationSeconds: true },
   });

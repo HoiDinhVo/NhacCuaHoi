@@ -38,7 +38,7 @@ export function toUserDTO(
 
 export async function listUsers(): Promise<UserDTO[]> {
   const users = await prisma.user.findMany({
-    orderBy: [{ role: "asc" }, { createdAt: "desc" }],
+    orderBy: [{ role: "asc" }, { createdAt: "desc" }, { id: "desc" }],
     include: { _count: { select: { playlists: true, favorites: true, history: true } } },
   });
 

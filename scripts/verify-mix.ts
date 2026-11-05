@@ -317,7 +317,7 @@ async function runDatabaseCheck(): Promise<void> {
 
     const topSong = await prisma.song.findFirst({
       where: { isPublished: true },
-      orderBy: { playCount: "desc" },
+      orderBy: [{ playCount: "desc" }, { id: "desc" }],
       select: { id: true, title: true },
     });
 

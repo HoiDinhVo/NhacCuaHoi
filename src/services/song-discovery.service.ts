@@ -11,7 +11,7 @@ export async function listNewestSongs(
   const rows = await prisma.song.findMany({
     where: { isPublished: true },
     include: songInclude,
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: limit,
   });
 
@@ -23,7 +23,7 @@ export async function listTopSongs(limit = 10, userId?: string | null): Promise<
   const rows = await prisma.song.findMany({
     where: { isPublished: true },
     include: songInclude,
-    orderBy: [{ playCount: "desc" }, { createdAt: "desc" }],
+    orderBy: [{ playCount: "desc" }, { createdAt: "desc" }, { id: "desc" }],
     take: limit,
   });
 
@@ -39,7 +39,7 @@ export async function listSongsByGenre(
   const rows = await prisma.song.findMany({
     where: { isPublished: true, genre: { slug: genreSlug } },
     include: songInclude,
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: limit,
   });
 
@@ -55,7 +55,7 @@ export async function listSongsBySource(
   const rows = await prisma.song.findMany({
     where: { isPublished: true, sourceType: source },
     include: songInclude,
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: limit,
   });
 
@@ -81,7 +81,7 @@ export async function quickSearch(term: string, userId?: string | null, limit = 
         ],
       },
       include: songInclude,
-      orderBy: { playCount: "desc" },
+      orderBy: [{ playCount: "desc" }, { id: "desc" }],
       take: limit,
     }),
     prisma.playlist.findMany({
@@ -90,7 +90,7 @@ export async function quickSearch(term: string, userId?: string | null, limit = 
         OR: [{ isPublic: true }, { ownerId: userId ?? "" }],
       },
       select: { id: true, name: true },
-      orderBy: { updatedAt: "desc" },
+      orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
       take: limit,
     }),
   ]);
@@ -121,7 +121,7 @@ export async function listRelatedSongs(
       ...(song.genreId ? { genreId: song.genreId } : {}),
     },
     include: songInclude,
-    orderBy: { playCount: "desc" },
+    orderBy: [{ playCount: "desc" }, { id: "desc" }],
     take: limit,
   });
 

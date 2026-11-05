@@ -16,7 +16,7 @@ export async function listPlaylistsForUser(userId?: string | null): Promise<Play
   const rows = await prisma.playlist.findMany({
     where: userId ? { OR: [{ ownerId: userId }, { isPublic: true }] } : { isPublic: true },
     include: playlistInclude,
-    orderBy: [{ isFeatured: "desc" }, { updatedAt: "desc" }],
+    orderBy: [{ isFeatured: "desc" }, { updatedAt: "desc" }, { id: "desc" }],
   });
 
   return rows.map((row) => toPlaylistDTO(row as PlaylistRow));
@@ -26,7 +26,7 @@ export async function listOwnedPlaylists(userId: string): Promise<PlaylistDTO[]>
   const rows = await prisma.playlist.findMany({
     where: { ownerId: userId },
     include: playlistInclude,
-    orderBy: { updatedAt: "desc" },
+    orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
   });
 
   return rows.map((row) => toPlaylistDTO(row as PlaylistRow));
@@ -37,7 +37,7 @@ export async function listFeaturedPlaylists(limit = 6): Promise<PlaylistDTO[]> {
   const rows = await prisma.playlist.findMany({
     where: { isFeatured: true },
     include: playlistInclude,
-    orderBy: { updatedAt: "desc" },
+    orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
     take: limit,
   });
 
@@ -47,7 +47,7 @@ export async function listFeaturedPlaylists(limit = 6): Promise<PlaylistDTO[]> {
 export async function listAllPlaylists(): Promise<PlaylistDTO[]> {
   const rows = await prisma.playlist.findMany({
     include: playlistInclude,
-    orderBy: { updatedAt: "desc" },
+    orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
   });
 
   return rows.map((row) => toPlaylistDTO(row as PlaylistRow));
@@ -72,7 +72,7 @@ export async function getPlaylist(
 
   const items = await prisma.playlistSong.findMany({
     where: { playlistId: id },
-    orderBy: [{ position: "asc" }, { addedAt: "asc" }],
+    orderBy: [{ position: "asc" }, { addedAt: "asc" }, { id: "asc" }],
     include: { song: { include: songInclude } },
   });
 
@@ -207,7 +207,7 @@ export async function addSongToPlaylist(
 
   const last = await prisma.playlistSong.findFirst({
     where: { playlistId },
-    orderBy: { position: "desc" },
+    orderBy: [{ position: "desc" }, { id: "desc" }],
     select: { position: true },
   });
 
@@ -243,6 +243,8 @@ export async function reorderPlaylist(
 
   const items = await prisma.playlistSong.findMany({
     where: { playlistId },
+    // Thu tu co dinh de cac bai "con lai" duoc gan `position` theo mot thu tu on dinh
+    orderBy: [{ position: "asc" }, { addedAt: "asc" }, { id: "asc" }],
     select: { id: true, songId: true },
   });
 
@@ -263,7 +265,7 @@ export async function reorderPlaylist(
 async function normalizePositions(playlistId: string): Promise<void> {
   const items = await prisma.playlistSong.findMany({
     where: { playlistId },
-    orderBy: [{ position: "asc" }, { addedAt: "asc" }],
+    orderBy: [{ position: "asc" }, { addedAt: "asc" }, { id: "asc" }],
     select: { id: true },
   });
 

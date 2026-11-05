@@ -117,7 +117,7 @@ async function main(): Promise<void> {
   const busiest = await prisma.listenHistory.groupBy({
     by: ["userId"],
     _count: { userId: true },
-    orderBy: { _count: { userId: "desc" } },
+    orderBy: [{ _count: { userId: "desc" } }, { userId: "asc" }],
     take: 1,
   });
 

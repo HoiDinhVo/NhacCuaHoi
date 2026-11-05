@@ -79,7 +79,7 @@ export async function countFavorites(userId: string): Promise<number> {
 export async function listFavoriteSongs(userId: string, limit = 100): Promise<SongDTO[]> {
   const favorites = await prisma.favorite.findMany({
     where: { userId },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: limit,
     include: {
       song: {

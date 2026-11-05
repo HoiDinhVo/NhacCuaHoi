@@ -215,7 +215,7 @@ export async function listDevicesForUser(
 ): Promise<DeviceDTO[]> {
   const rows = await prisma.userDevice.findMany({
     where: { userId },
-    orderBy: [{ lastSeenAt: "desc" }, { firstLoginAt: "desc" }],
+    orderBy: [{ lastSeenAt: "desc" }, { firstLoginAt: "desc" }, { id: "desc" }],
   });
 
   if (options?.refreshLocation !== false) {

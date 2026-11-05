@@ -145,7 +145,7 @@ async function runDatabaseCheck(): Promise<void> {
   try {
     const { getListeningInsights, INSIGHTS_TREND_DAYS } = await import("@/services/history.service");
 
-    const anyUser = await prisma.user.findFirst({ orderBy: { createdAt: "asc" }, select: { id: true, name: true } });
+    const anyUser = await prisma.user.findFirst({ orderBy: [{ createdAt: "asc" }, { id: "asc" }], select: { id: true, name: true } });
 
     if (!anyUser) {
       skip("Thong ke that tren CSDL", "chua co nguoi dung nao");

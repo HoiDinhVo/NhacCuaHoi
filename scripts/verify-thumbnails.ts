@@ -283,7 +283,7 @@ async function runDatabaseCheck(): Promise<YoutubeSong[]> {
   const youtubeSongs: YoutubeSong[] = [];
 
   try {
-    const rows = await prisma.song.findMany({ take: 200, orderBy: { createdAt: "desc" } });
+    const rows = await prisma.song.findMany({ take: 200, orderBy: [{ createdAt: "desc" }, { id: "desc" }] });
 
     const youtubeRows = rows.filter((row) => row.sourceType === "YOUTUBE");
     const staleSharp = youtubeRows.filter(

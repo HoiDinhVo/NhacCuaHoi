@@ -47,11 +47,22 @@ export async function mapWithFavorites(
   return rows.map((row) => toSongDTO(row, { isFavorite: favoriteIds.has(row.id) }));
 }
 
+/**
+ * Sap xep co dinh cho danh sach bai nhac.
+ *
+ * Vì sao luôn có khoa phu `id`: CSDL chi dam bao thu tu khi TAT CA cot sap xep deu bang nhau.
+ * Neu chi sap xep theo 1 cot (vi du `createdAt`), cac bai co cung gia tri se duoc tra ve theo
+ * thu tu TUY Y của CSDL -> trang tim kiem "nhay lung tung" giữa 2 lan tai, và phan trang co
+ * the bi trung bai / bo sot bai. `id` là `cuid()` duy nhat nen luon tat va cho thu tu on dinh.
+ *
+ * Chieu sap xep cua khoa phu giong voi khoa chinh (desc -> desc, asc -> asc) de danh sach
+ * doc duoc theo mot luong "moi truoc, cu cuoi" nhat quan.
+ */
 const SORT_MAP = {
-  newest: { createdAt: "desc" as const },
-  oldest: { createdAt: "asc" as const },
-  title: { title: "asc" as const },
-  plays: { playCount: "desc" as const },
+  newest: [{ createdAt: "desc" as const }, { id: "desc" as const }],
+  oldest: [{ createdAt: "asc" as const }, { id: "asc" as const }],
+  title: [{ title: "asc" as const }, { id: "asc" as const }],
+  plays: [{ playCount: "desc" as const }, { id: "desc" as const }],
 };
 
 export async function listSongs(

@@ -7,7 +7,7 @@ import type { GenreDTO } from "@/types";
 
 export async function listGenres(): Promise<GenreDTO[]> {
   const rows = await prisma.genre.findMany({
-    orderBy: { name: "asc" },
+    orderBy: [{ name: "asc" }, { id: "asc" }],
     include: { _count: { select: { songs: true } } },
   });
 
@@ -109,7 +109,7 @@ export async function listGenresWithCounts(): Promise<
   { id: string; name: string; slug: string; color: string | null; songCount: number }[]
 > {
   const rows = await prisma.genre.findMany({
-    orderBy: { name: "asc" },
+    orderBy: [{ name: "asc" }, { id: "asc" }],
     include: { _count: { select: { songs: true } } },
   });
 

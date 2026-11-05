@@ -133,7 +133,10 @@ export function rankMixCandidates(current: SongDTO, candidates: SongDTO[], limit
       (a, b) =>
         b.score - a.score ||
         b.song.playCount - a.song.playCount ||
-        a.song.title.localeCompare(b.song.title, "vi"),
+        a.song.title.localeCompare(b.song.title, "vi") ||
+        // Khoa phu cuoi cung: `id` la duy nhat nen hai bai trung ten / trung diem
+        // van duoc xep theo mot thu tu ON DINH (khong "nhay lung tung" giua 2 lan goi).
+        a.song.id.localeCompare(b.song.id),
     )
     .slice(0, Math.max(0, limit));
 }

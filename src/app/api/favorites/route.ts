@@ -16,7 +16,7 @@ export const GET = handleApi(async (request: NextRequest) => {
 
   const favorites = await prisma.favorite.findMany({
     where: { userId: guard.user.id },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take,
     include: { song: { include: songInclude } },
   });

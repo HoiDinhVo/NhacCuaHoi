@@ -555,7 +555,7 @@ async function runDatabaseCheck(): Promise<void> {
   }
 
   try {
-    const song = await prisma.song.findFirst({ orderBy: { createdAt: "asc" }, select: { id: true, title: true } });
+    const song = await prisma.song.findFirst({ orderBy: [{ createdAt: "asc" }, { id: "asc" }], select: { id: true, title: true } });
     const admin = await prisma.user.findFirst({ where: { role: "ADMIN" }, select: { id: true } });
 
     if (!song || !admin) {

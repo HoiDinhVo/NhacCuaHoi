@@ -113,7 +113,7 @@ Quy ước áp dụng:
 - **Dải nội dung (“shelf”) + tiêu đề dùng lại**: `SectionHeader` (`src/components/music/section-header.tsx`)
   gói icon + tiêu đề + mô tả ngắn + liên kết “Xem tất cả ›”, phía dưới có `hairline`. Mọi mục trên trang chủ
   đều dùng chung component này.
-- **Thẻ bìa là nhân vật chính**: tiêu đề đậm hơn nghệ sĩ; chip thời lượng/số bài ở góc bìa; nút phát gradient
+- **Thẻ bìa là nhân vật chính**: tiêu đề đậm hơn nghệ sĩ; chip thời lượng/số bài ở góc bìa; nút phát gradient.
   trượt lên khi hover; thẻ đang phát được đánh dấu bằng viền màu chủ đạo **và** sóng nhạc động.
 - **Hàng danh sách** (`SongRow`) cũng theo luật đó: số thứ tự đổi thành sóng nhạc khi đang phát, bìa dùng
   `art-frame`, tiêu đề đậm + màu chủ đạo khi đang phát.

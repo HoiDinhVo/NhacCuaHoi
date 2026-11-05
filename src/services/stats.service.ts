@@ -47,7 +47,7 @@ export async function getStatsOverview(): Promise<StatsOverview> {
     prisma.listenHistory.aggregate({ _sum: { msPlayed: true } }),
     prisma.song.findMany({
       where: { playCount: { gt: 0 } },
-      orderBy: { playCount: "desc" },
+      orderBy: [{ playCount: "desc" }, { id: "desc" }],
       take: 8,
       select: { id: true, title: true, artist: true, playCount: true },
     }),
@@ -65,13 +65,15 @@ export async function getStatsOverview(): Promise<StatsOverview> {
     prisma.song.groupBy({
       by: ["sourceType"],
       _count: { _all: true },
+      // Sap xep theo chinh cot gom de thu tu mang `bySource` luon on dinh
+      orderBy: { sourceType: "asc" },
     }),
     // Tong hop ngay o SQL Server (khong keo toan bo lich su cua nguoi dung ve Node)
     prisma.listenHistory.groupBy({
       by: ["userId"],
       _count: { _all: true },
       _sum: { msPlayed: true },
-      orderBy: { _count: { userId: "desc" } },
+      orderBy: [{ _count: { userId: "desc" } }, { userId: "asc" }],
       take: 5,
     }),
   ]);
@@ -116,7 +118,8 @@ export async function getStatsOverview(): Promise<StatsOverview> {
         color: genre.color,
         plays: genre.songs.reduce((total, song) => total + song.playCount, 0),
       }))
-      .sort((a, b) => b.plays - a.plays)
+      // Khoa phu `name` (duy nhat) de thu tu xep hang on dinh khi hai the loai cung so luot
+      .sort((a, b) => b.plays - a.plays || a.name.localeCompare(b.name, "vi"))
       .slice(0, 6),
     bySource: sourceRows.map((row) => ({
       source: row.sourceType as SourceType,

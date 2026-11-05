@@ -53,7 +53,7 @@ export async function buildSongMix(
         ? prisma.song.findMany({
             where: { isPublished: true, id: { not: songId }, genreId: seedRow.genreId },
             include: songInclude,
-            orderBy: { playCount: "desc" },
+            orderBy: [{ playCount: "desc" }, { id: "desc" }],
             take: MIX_POOL_PER_GROUP,
           })
         : null,
@@ -61,14 +61,14 @@ export async function buildSongMix(
         ? prisma.song.findMany({
             where: { isPublished: true, id: { not: songId }, artist: seedRow.artist },
             include: songInclude,
-            orderBy: { playCount: "desc" },
+            orderBy: [{ playCount: "desc" }, { id: "desc" }],
             take: MIX_POOL_PER_GROUP,
           })
         : null,
       prisma.song.findMany({
         where: { isPublished: true, id: { not: songId }, sourceType: seedRow.sourceType },
         include: songInclude,
-        orderBy: { playCount: "desc" },
+        orderBy: [{ playCount: "desc" }, { id: "desc" }],
         take: MIX_POOL_PER_GROUP,
       }),
     ].map((query) => query ?? Promise.resolve([])),
@@ -83,7 +83,7 @@ export async function buildSongMix(
     const fillRows = await prisma.song.findMany({
       where: { isPublished: true, id: { notIn: [...picked] } },
       include: songInclude,
-      orderBy: [{ playCount: "desc" }, { createdAt: "desc" }],
+      orderBy: [{ playCount: "desc" }, { createdAt: "desc" }, { id: "desc" }],
       take: MIX_FALLBACK_POOL,
     });
 
